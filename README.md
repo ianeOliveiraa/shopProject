@@ -37,7 +37,10 @@ python manage.py runserver
 
 Acesse o projeto no navegador em http://127.0.0.1:8000/
 
-
+Equipe:
+Iane Oliveira - Tech-lead
+Marvin Matheus - DEV
+Patrica Nascimento - DEV
 
 
 
