@@ -43,11 +43,30 @@ def produto_form(request, id=None):
 def cadastro_produto(request):
     return produto_form(request)
 
-def produto_list(request):
+def lista_produtos(request):
     produtos = Produto.objects.all()
     return render(request, 'produtos.html', {'produtos': produtos})
-
 def home(request):
     return render(request, 'home.html')
+
+# Editar produto
+def editar_produto(request, id):
+    produto = get_object_or_404(Produto, id=id)
+    if request.method == 'POST':
+        form = ProdutoForm(request.POST, instance=produto)
+        if form.is_valid():
+            form.save()
+            return redirect('lista_produtos')  # Nome da view que lista os produtos
+    else:
+        form = ProdutoForm(instance=produto)
+    return render(request, 'editar_produto.html', {'form': form})
+
+# Excluir produto
+def excluir_produto(request, id):
+    produto = get_object_or_404(Produto, id=id)
+    if request.method == 'POST':
+        produto.delete()
+        return redirect('lista_produtos')  # Nome da view que lista os produtos
+    return render(request, 'confirmar_exclusao.html', {'produto': produto})
 
 

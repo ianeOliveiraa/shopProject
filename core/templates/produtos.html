@@ -43,6 +43,14 @@
             color: #333;
         }
 
+        .filter-input {
+            margin-bottom: 15px;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -59,6 +67,7 @@
             background-color: #4CAF50;
             color: white;
             font-weight: bold;
+            cursor: pointer;
         }
 
         tr:hover {
@@ -69,40 +78,110 @@
             color: #4CAF50;
             font-weight: bold;
         }
+        .btn-edit {
+            display: inline-block;
+            padding: 6px 10px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+
+        .btn-edit:hover {
+            background-color: #45a049;
+        }
+
+        .btn-delete {
+            display: inline-block;
+            padding: 6px 10px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            background-color: #e53935;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>Lista de Produtos</h1>
+    <input type="text" class="filter-input" id="filter" placeholder="Filtrar por nome...">
     <table>
         <thead>
         <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Preço</th>
-            <th>Estoque</th>
+            <th onclick="sortTable(0)">ID</th>
+            <th onclick="sortTable(1)">Nome</th>
+            <th onclick="sortTable(2)">Descrição</th>
+            <th onclick="sortTable(3)">Preço</th>
+            <th onclick="sortTable(4)">Estoque</th>
+            <th>Ações</th>
         </tr>
         </thead>
-        <tbody>
+        <tbody id="productTable">
         {% for produto in produtos %}
-            <tr>
-                <td>{{ produto.id }}</td>
-                <td>{{ produto.nome }}</td>
-                <td>{{ produto.descricao }}</td>
-                <td class="price">R$ {{ produto.preco }}</td>
-                <td>{{ produto.estoque }}</td>
-            </tr>
-           
+        <tr>
+            <td>{{ produto.id }}</td>
+            <td>{{ produto.nome }}</td>
+            <td>{{ produto.descricao }}</td>
+            <td class="price">R$ {{ produto.preco }}</td>
+            <td>{{ produto.quantidade_estoque|default:"Sem estoque" }}</td>
+            <td>
+                <a href="{% url 'editar_produto' produto.id %}" class="btn-edit">Editar</a>
+                <form action="{% url 'excluir_produto' produto.id %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-delete" onclick="return confirm('Deseja excluir este produto?');">Excluir</button>
+                </form>
+            </td>
+        </tr>
         {% empty %}
-            <tr>
-                <td colspan="5" style="text-align: center;">Nenhum produto encontrado.</td>
-            </tr>
+        <tr>
+            <td colspan="6" style="text-align: center;">Nenhum produto encontrado.</td>
+        </tr>
         {% endfor %}
-        
         </tbody>
     </table>
     <a href="{% url 'home' %}" class="btn-home">Voltar para Home</a>
 </div>
+<script>
+    // Filtrar produtos
+    document.getElementById('filter').addEventListener('input', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#productTable tr');
+        rows.forEach(row => {
+            const name = row.cells[1]?.textContent.toLowerCase();
+            row.style.display = name && name.includes(filter) ? '' : 'none';
+        });
+    });
+
+    // Ordenar tabela
+    function sortTable(colIndex) {
+        const table = document.getElementById('productTable');
+        const rows = Array.from(table.rows);
+        const isAscending = table.getAttribute('data-sort-dir') === 'asc';
+        table.setAttribute('data-sort-dir', isAscending ? 'desc' : 'asc');
+
+        rows.sort((rowA, rowB) => {
+            const cellA = rowA.cells[colIndex].textContent.trim();
+            const cellB = rowB.cells[colIndex].textContent.trim();
+
+            if (!isNaN(cellA) && !isNaN(cellB)) {
+                return isAscending ? cellA - cellB : cellB - cellA;
+            } else {
+                return isAscending
+                    ? cellA.localeCompare(cellB)
+                    : cellB.localeCompare(cellA);
+            }
+        });
+
+        rows.forEach(row => table.appendChild(row));
+    }
+</script>
 </body>
 </html>
