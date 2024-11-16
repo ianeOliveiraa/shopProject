@@ -10,6 +10,7 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nome
 
+from django.db import models
 
 class Produto(models.Model):
     nome = models.CharField(max_length=100)
@@ -29,4 +30,3 @@ class Venda(models.Model):
 
     def __str__(self):
         return f'{self.cliente} - {self.produto}'
-
