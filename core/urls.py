@@ -14,4 +14,8 @@ urlpatterns = [
     path('editar/<int:id>/', views.editar_produto, name='editar_produto'),
     path('excluir/<int:id>/', views.excluir_produto, name='excluir_produto'),
 
+    path('venda/', views.venda_list, name='venda_list'),
+    path('venda/novo/', views.venda_form, name='venda_create'),
+    path('venda/<int:id>/', views.venda_form, name='venda_update'),
+
 ]
